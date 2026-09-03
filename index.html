@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>打掃工作分配表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://i.meee.com.tw/WKETfEq.jpg" type="image/x-icon" />
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="board">
+  <div class="nav-tabs">
+    <button class="tab-btn active" id="tab-check" onclick="switchTab('check')">打掃檢查</button>
+    <button class="tab-btn" id="tab-pending" onclick="switchTab('pending')">待打掃／未合格</button>
+    <button class="tab-btn" id="tab-weekly" onclick="switchTab('weekly')">本週打掃狀況</button>
+  </div>
+
+  <div id="view-check">
+    <div class="masthead">
+      <h1>今日打掃檢查</h1>
+      <div class="date" id="today-label"></div>
+    </div>
+
+    <div class="who-box" id="who-box"></div>
+    <div class="roster-strip" id="roster-strip"></div>
+    <div id="floors"></div>
+
+    <details class="admin">
+      <summary>管理設定</summary>
+      <div class="admin-body" id="admin-body">
+        本月清潔工由系統於每月 1 號自動依書院成員重新抽選；每日的檢查結果每天自動重置。
+        <div>
+          <button id="reroll-btn" type="button">重新抽選本月清潔工</button>
+        </div>
+        <div id="admin-submissions"></div>
+      </div>
+    </details>
+  </div>
+
+  <div id="view-pending" style="display:none;">
+    <div class="masthead">
+      <h1>待打掃／未合格區域</h1>
+    </div>
+    <div id="pending-places-container"></div>
+  </div>
+
+  <div id="view-weekly" style="display:none;">
+    <div class="masthead">
+      <h1>本週打掃狀況</h1>
+    </div>
+    <div id="weekly-matrix-container"></div>
+  </div>
+</div>
+
+<div id="submit-area"></div>
+
+<div class="sheet-backdrop" id="sheet-backdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="sheet-title"></div>
+  <div class="sheet-options" id="sheet-options"></div>
+</div>
+<div class="footer-credits">
+  Designed & Developed by 竹北實中<a href="https://github.com/Jeremy-Liaw" target="_blank">Jeremy</a> & <a href="https://theoyu314159.github.io/" target="_blank">Yuyoru</a>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
