@@ -100,11 +100,26 @@ const ROSTER = buildRoster();
 function pad(n){ return String(n).padStart(2,'0'); }
 function monthKey(d){ return d.getFullYear() + '-' + pad(d.getMonth()+1); }
 function dateKey(d){ return monthKey(d) + '-' + pad(d.getDate()); }
+
+function weekKey(d) {
+  const target = new Date(d.valueOf());
+  const dayNr = (d.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  const firstThursday = target.valueOf();
+  target.setMonth(0, 1);
+  if (target.getDay() !== 4) {
+    target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
+  }
+  const weekNum = 1 + Math.round((firstThursday - target.valueOf()) / 604800000);
+  return target.getFullYear() + '-W' + pad(weekNum);
+}
+
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 const now = new Date();
 const MKEY = monthKey(now);
 const DKEY = dateKey(now);
+const WKEY = weekKey(now);
 
 let tasksData = null;
 let inspectorData = null;
@@ -118,11 +133,11 @@ async function loadAll(){
   tasksData = DEFAULT_TASKS;
   const kv = await fetchDump();
 
-  inspectorData = kv['inspectors:'+MKEY] ? JSON.parse(kv['inspectors:'+MKEY]) : null;
+  inspectorData = kv['inspectors:'+WKEY] ? JSON.parse(kv['inspectors:'+WKEY]) : null;
   if(!inspectorData){
     inspectorData = {};
     BOOKS.forEach(book=>{ inspectorData[book] = pick(ROSTER[book]); });
-    await saveJSON('inspectors:'+MKEY, inspectorData);
+    await saveJSON('inspectors:'+WKEY, inspectorData);
   }
   checklistData = kv['checklist:'+DKEY] ? JSON.parse(kv['checklist:'+DKEY]) : {};
   submissions = kv['submissions:'+DKEY] ? JSON.parse(kv['submissions:'+DKEY]) : {};
@@ -229,7 +244,7 @@ function renderWhoBox(){
     const floors = floorsForBook(selectedBook).join('、');
     el.innerHTML = `
       <div class="who-current">
-        <div class="info">您的書院：<b>${selectedBook}</b>（負責 ${floors}）<br>本月清潔工：${inspectorData[selectedBook]}</div>
+        <div class="info">您的書院：<b>${selectedBook}</b>（負責 ${floors}）<br>本週清潔工：${inspectorData[selectedBook]}</div>
         <button class="swap-btn" id="swap-book-btn" type="button">更換書院</button>
       </div>
     `;
@@ -485,17 +500,13 @@ async function renderWeeklyMatrix() {
 
   const latestKV = await fetchDump();
 
-  // 1. 計算當週「週一」的日期
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0(日), 1(一), 2(二), ..., 6(六)
-  
-  // 計算距離本週一相差幾天（如果今天是週日 0，則當週一為 6 天前）
+  const dayOfWeek = today.getDay();
   const distanceToMonday = (dayOfWeek === 0) ? -6 : 1 - dayOfWeek;
   
   const monday = new Date(today);
   monday.setDate(today.getDate() + distanceToMonday);
 
-  // 2. 依序產生當週 週一至週五 的 5 天日期
   const pastDays = [];
   const weekDays = ['一', '二', '三', '四', '五'];
 
@@ -567,9 +578,9 @@ async function renderWeeklyMatrix() {
 }
 
 document.getElementById('reroll-btn').addEventListener('click', async ()=>{
-  if(!confirm('確定要重新抽選本月清潔工嗎？這會覆蓋目前的名單。')) return;
+  if(!confirm('確定要重新抽選本週清潔工嗎？這會覆蓋目前的名單。')) return;
   BOOKS.forEach(book=>{ inspectorData[book] = pick(ROSTER[book]); });
-  await saveJSON('inspectors:'+MKEY, inspectorData);
+  await saveJSON('inspectors:'+WKEY, inspectorData);
   render();
 });
 
